@@ -1,10 +1,31 @@
 {
 	"pages": [
-		
-
+		{
+			"path": "pages/main/main",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/recommend/recommend",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/center/center",
+			"style": {
+				"navigationBarTitleText": "个人中心",
+				"enablePullDownRefresh": true,
+				"navigationBarBackgroundColor": "#034190"
+			}
+		}
 	],
-	"subPackages": [
-	],
+	"subPackages": [],
 	"globalStyle": {
 		"pageOrientation": "portrait",
 		"navigationBarTitleText": "Hello uniapp",
@@ -21,7 +42,6 @@
 			"navigationBarTextStyle": "black",
 			"navigationBarBackgroundColor": "#F1F1F1"
 		}
-
 	},
 	"tabBar": {
 		"color": "#7A7E83",
@@ -29,6 +49,24 @@
 		"borderStyle": "black",
 		"backgroundColor": "#F8F8F8",
 		"list": [
+			{
+				"iconPath": "/static/img/home-unselected.png",
+				"selectedIconPath": "/static/img/home-selected.png",
+				"pagePath": "pages/main/main",
+				"text": "首页"
+			},
+			{
+				"iconPath": "/static/img/recommed-unselected.png",
+				"selectedIconPath": "/static/img/recommed-selected.png",
+				"pagePath": "pages/recommend/recommend",
+				"text": "我要推荐"
+			},
+			{
+				"iconPath": "/static/img/personal-unselected.png",
+				"selectedIconPath": "/static/img/personal-selected.png",
+				"pagePath": "pages/center/center",
+				"text": "个人中心"
+			}
 		]
 	}
 }
