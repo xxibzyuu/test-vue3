@@ -44,6 +44,105 @@
       </swiper>
     </uni-swiper-dot>
   </view>
+  <view class="catelog-box">
+    <uni-row>
+      <uni-col :span="12">
+        <view
+          :class="[
+            'catelog-item',
+            { 'selected-catelog': catelogType == 'rent' },
+          ]"
+          @click="changeCatelogType('rent')"
+          >租赁</view
+        >
+      </uni-col>
+      <uni-col :span="12">
+        <view
+          :class="[
+            'catelog-item',
+            { 'selected-catelog': catelogType == 'buy' },
+          ]"
+          @click="changeCatelogType('buy')"
+          >购买</view
+        >
+      </uni-col>
+    </uni-row>
+  </view>
+  <view class="projet-box">
+    <view class="project-item" v-for="item in curProjectList" :key="item.id">
+      <view
+        class="project-item-image"
+        :style="{ 'background-image': 'url(' + item.imgsrc + ')' }"
+        @click="gotoItemDetail(item.id)"
+      >
+        <view
+          v-if="item.recommendRule.commission"
+          class="project-item-image-label1"
+        >
+          <text class="project-item-image-text">{{
+            item.recommendRule.commission || ""
+          }}</text>
+        </view>
+        <view class="project-item-image-label2">
+          <uni-row class="demo-uni-row">
+            <uni-col :span="16">
+              <view class="demo-uni-col" style="height: 100%">
+                <view class="prject-item-title">
+                  <text class="text-style">{{ item.title }}</text>
+                </view>
+              </view>
+            </uni-col>
+            <uni-col :span="8">
+              <view class="demo-uni-col" style="height: 100%">
+                <view class="prject-item-area">
+                  <text class="text-style">{{ item.area }}</text>
+                </view>
+              </view>
+            </uni-col>
+          </uni-row>
+        </view>
+      </view>
+      <view class="project-item-detail">
+        <view @click="gotoItemDetail(item.id)">
+          <uni-row class="demo-uni-row">
+            <uni-col :span="24">
+              <view class="demo-uni-col" style="height: 100%">
+                <view class="prject-item-price">{{ item.price }}</view>
+                <view class="prject-item-address">
+                  <text class="text-style">{{ item.address }}</text></view
+                >
+              </view>
+            </uni-col>
+          </uni-row>
+        </view>
+        <view class="recommend-box">
+          <view class="project-item-tag">
+            <uni-tag
+              v-for="(prj, index) in item.recommendReasonList"
+              :key="index"
+              :text="prj.reason"
+              :custom-style="tagCustomStyle"
+            >
+            </uni-tag>
+          </view>
+          <view class="prject-item-recommend">
+            <button
+              type="default"
+              style="width: 87px"
+              size="mini"
+              @click="recommend(item.id)"
+              class="prject-item-recommend-btn"
+              hover-class="prject-item-recommend-btn-hover"
+            >
+              推荐客户
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+    <!-- 加载更多 -->
+    <view class="loading">{{ loadingText }}</view>
+  </view>
 </template>
 
 <script setup>
@@ -56,15 +155,35 @@ onLoad(() => {
   getProject();
 });
 
-
 const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
-const rotatetop = (uni.upx2px( 554)- (menuButtonInfo.top+5+41+61) -10);
+const rotatetop = uni.upx2px(554) - (menuButtonInfo.top + 5 + 41 + 61) - 10;
 
-const searchValue = ref("");
-const curProjectList = reactive([]);
-const slideImageList = reactive([]);
+let catelogType = ref("rent");
+function changeCatelogType(type) {
+  catelogType.value = type;
+}
+// ----项目列表相关变量和方法----
+const tagCustomStyle = {
+  backgroundColor: "#f5f5f5",
+  borderColor: "#f5f5f5",
+  color: "#69bea1",
+  fontWeight: "bold",
+  fontSize: "12px",
+  marginRight: "8rpx",
+};
+function gotoItemDetail(id) {
+  uni.navigateTo({
+    url: "/subpagesA/pages/project/project?type=page&id=" + id,
+  });
+}
+// ----项目列表相关变量和方法----
+
+let searchValue = ref("");
+let curProjectList = reactive([]);
+let slideImageList = reactive([]);
 const searchProject = () => {};
 const clearProject = () => {};
+
 function getProject() {
   uni.showNavigationBarLoading();
   $request
@@ -197,5 +316,124 @@ function getProject() {
   .image {
     width: 100%;
   }
+}
+.catelog-item {
+  text-align: center;
+}
+.selected-catelog::after {
+  content: "";
+  position: absolute;
+  bottom: -30%;
+  left: 40%;
+  width: 22%;
+  height: 10rpx;
+  background: linear-gradient(270deg, rgba(3, 65, 144, 0) 0%, #034190 100%);
+}
+.text-style {
+  overflow: hidden;
+  -webkit-line-clamp: 1;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+.recommend-box {
+  margin-top: -10px;
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.projet-box {
+  padding-top: 10px;
+}
+.project-item {
+  height: 380px;
+  margin: 0px 10px 10px 10px;
+  background-color: #ffffff;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.project-item-image {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  background-size: cover;
+  height: 240px;
+}
+.project-item-image-label1 {
+  text-align: left;
+  padding: 10rpx 0rpx 0rpx 10rpx;
+}
+.project-item-image-text {
+  font-size: 14px;
+  background-color: white;
+  padding: 2rpx 5rpx 2rpx 5rpx;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+.project-item-image-label2 {
+  background-color: rgba(0, 0, 0, 0.4);
+  position: relative;
+  top: 172px;
+}
+.project-item-detail {
+  padding-top: 20rpx;
+}
+.project-item-tag {
+  background-color: #ffffff;
+  text-align: left;
+  padding-left: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  margin-top: 10px;
+}
+.prject-item-recommend {
+  padding: 5px 0px 0px 0px;
+  text-align: right;
+  color: red;
+  font-size: 20px;
+  margin-top: 10px;
+}
+.prject-item-recommend-btn {
+  background: #034190;
+  border-radius: 8rpx;
+  color: white;
+}
+.prject-item-recommend-btn-hover {
+  //#012045 #c2c2c2
+  background: #022b5e;
+  border-radius: 8rpx;
+  color: #e0e0e0;
+}
+.prject-item-title {
+  padding: 10px 5rpx 10px 10rpx;
+  text-align: left;
+  font-size: 14px;
+  color: white;
+  font-weight: 500;
+}
+.prject-item-address {
+  padding: 5px 0px 0px 10px;
+  text-align: left;
+  font-size: 14px;
+}
+.prject-item-area {
+  padding: 10px 10rpx 10px 0rpx;
+  text-align: right;
+  font-size: 14px;
+  color: white;
+}
+
+.prject-item-price {
+  padding: 5px 0px 0px 10px;
+  text-align: left;
+  color: red;
+  font-size: 16px;
+}
+.loading {
+  font-size: 24rpx;
 }
 </style>

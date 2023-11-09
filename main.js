@@ -1,6 +1,8 @@
 import App from './App'
 import request from './common/request.js'
 
+import './static/style/common.scss'
+
 import {
 	createSSRApp
 } from 'vue'
