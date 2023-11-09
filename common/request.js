@@ -48,7 +48,6 @@ export default {
 					const res = result.data
 					const jump = uni.getStorageSync('jump')
 					if(res.code === '0001') {
-						debugger
 						if(!jump) {
 							uni.showToast({
 								title: res.msg,
