@@ -35,7 +35,7 @@
         <swiper-item v-for="(item, index) in slideImageList" :key="index">
           <view class="swiper-item" :class="'swiper-item' + index">
             <image
-              :src="imageHostUrl + item.resUrl"
+              :src="imageHost + item.resUrl"
               mode="scaleToFill"
               class="swiper-item-image"
             ></image>
@@ -179,63 +179,68 @@ function gotoItemDetail(id) {
 // ----项目列表相关变量和方法----
 
 let searchValue = ref("");
+let loadingText = ref("");
 let curProjectList = reactive([]);
 let slideImageList = reactive([]);
+let current = ref(0);
+let swiperDotIndex = ref(0);
 const searchProject = () => {};
 const clearProject = () => {};
+function slideChange(e) {
+  current = e.detail.current
+} 
+function clickSlideItem(e) {
+  swiperDotIndex = e
+}
 
 function getProject() {
+  loadingText = '加载中...';
   uni.showNavigationBarLoading();
-  $request
-    .request({
-      url: "/front/list",
-      data: {
-        pageSize: 10,
-        pageNo: 1,
-        name: searchValue,
-      },
-      header: {
-        "custom-header": "hello", //自定义请求头信息
-      },
-    })
-    .then((res) => {
-      let index = 0;
-      let data = ret.data;
-      // console.log(data);
-      //首页轮播图片
-      if (data.banner != undefined && data.banner != null) {
-        slideImageList = data.banner;
+  $request.request({
+    url: "/front/list",
+    data: {
+      pageSize: 10,
+      pageNo: 1,
+      name: searchValue.value
+    },
+    header: {
+      "custom-header": "hello", //自定义请求头信息
+    },
+  }).then((res) => {
+    let index = 0;
+    let data = res.data;
+    //首页轮播图片
+    if (data.banner != undefined && data.banner != null) {
+      slideImageList = data.banner;
+    }
+
+    //首页项目列表
+    let projectList = data.projectList;
+
+    if (projectList == null || projectList.length <= 0) {
+      // that.loadingText = "---没有更多数据了---";
+      uni.hideNavigationBarLoading();
+      return false;
+    } else {
+      for (index = 0; index < projectList.length; index++) {
+        curProjectList.push({
+          id: projectList[index].id,
+          title: projectList[index].name,
+          address: projectList[index].address,
+          area: projectList[index].areaSectionWithUnit,
+          recommendReasonList: projectList[index].recommendReasonList,
+          recommendRule: projectList[index].recommendRule,
+          price: projectList[index].priceSectionWithUnit,
+          imgsrc: "'" + imageHost + projectList[index].mediaThumbnail + "'",
+        });
       }
-
-      //首页项目列表
-      let projectList = data.projectList;
-
-      if (projectList == null || projectList.length <= 0) {
-        // that.loadingText = "---没有更多数据了---";
-        uni.hideNavigationBarLoading();
-        return false;
-      } else {
-        for (index = 0; index < projectList.length; index++) {
-          curProjectList.push({
-            id: projectList[index].id,
-            title: projectList[index].name,
-            address: projectList[index].address,
-            area: projectList[index].areaSectionWithUnit,
-            recommendReasonList: projectList[index].recommendReasonList,
-            recommendRule: projectList[index].recommendRule,
-            price: projectList[index].priceSectionWithUnit,
-            imgsrc: "'" + imageHost + projectList[index].mediaThumbnail + "'",
-          });
-        }
-
-        // that.pageNo++;
-        uni.hideNavigationBarLoading();
-        // that.loadingText = "上拉显示更多";
-      }
-    })
-    .catch(() => {
-      // that.loadingText = "---加载数据失败---";
-    });
+      // that.pageNo++;
+      uni.hideNavigationBarLoading();
+      loadingText = "上拉显示更多";
+    }
+  }).catch(() => {
+    loadingText = "---加载数据失败---";
+  });
 }
 </script>
 
@@ -317,8 +322,16 @@ function getProject() {
     width: 100%;
   }
 }
+.catelog-box {
+  margin: 20rpx 0;
+  font-size: 36rpx;
+}
 .catelog-item {
+  position: relative;
   text-align: center;
+}
+.selected-catelog {
+  font-weight: bold;
 }
 .selected-catelog::after {
   content: "";
@@ -380,6 +393,8 @@ function getProject() {
   top: 172px;
 }
 .project-item-detail {
+  display: flex;
+  flex-direction: column;
   padding-top: 20rpx;
 }
 .project-item-tag {
